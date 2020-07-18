@@ -1,0 +1,39 @@
+type Poll @model 
+@key(name: "byItemType", fields: ["itemType", "createdAt"], queryField: "itemsByType")
+@auth(rules: [{ allow: public, operations: [read] }])
+{
+  id: ID!
+  name: String!
+  type: PollType!
+  itemType: String
+  candidates: [Candidate] @connection
+  createdAt: String
+}
+
+enum PollType {
+  image
+  text
+}
+
+type Candidate @model
+@auth(rules: [{ allow: public, operations: [read] }])
+{  id: ID!
+  pollCandidatesId: ID
+  image: String
+  name: String
+  upvotes: Int
+}
+
+type VoteType {
+  id: ID
+  clientId: ID
+}
+
+type Mutation {
+  upVote(id: ID, clientId: ID): VoteType
+}
+
+type Subscription {
+  onUpdateByID(id: ID!): VoteType
+  @aws_subscribe(mutations: ["upVote"])
+}
